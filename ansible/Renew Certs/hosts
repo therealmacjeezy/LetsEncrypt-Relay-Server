@@ -1,0 +1,26 @@
+---
+
+# This is the default ansible 'hosts' file.
+#
+# It should live in /etc/ansible/hosts
+#
+#   - Comments begin with the '#' character
+#   - Blank lines are ignored
+#   - Groups of hosts are delimited by [header] elements
+#   - You can enter hostnames or ip addresses
+#   - A hostname/ip can be a member of multiple groups
+
+# Ex 1: Ungrouped hosts, specify before any group headers.
+all:
+  vars:
+    # Enter the service account being used to connect here
+    svc_acct: penguinmetal
+    # Change to true is you need to convert the LE Certs to .pfx for IIS
+    using_iis: false
+    # Enter the directory you want to save the renewed certs to locally
+    save_dir: /path/to/local/dir
+
+le:
+  hosts:
+    le.macjeezy:
+      ansible_host: le.macjeezy.com

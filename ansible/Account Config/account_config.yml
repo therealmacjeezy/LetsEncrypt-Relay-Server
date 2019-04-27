@@ -1,0 +1,69 @@
+---
+
+- hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+    # Performs a search for the service account
+    - name: Search for service account
+      action: "shell /usr/bin/getent passwd {{ svc_acct }} | /usr/bin/wc -l | tr -d ' '"
+      register: user_search
+
+    # Creates the service account and adds it to the certbotusers group to allow ssh access
+    - name: Create service account
+      user:
+        name: '{{ svc_acct }}'
+        password: '{{ rand_pass }}'
+        system: no
+        groups: '{{ certbot_group }}'
+        append: yes
+        state: present
+      register: user_created
+      when: user_search.stdout == "1"
+
+    # Checsk to see if the authorized_keys file already exists in the ~/.ssh directory
+    - name: Check for authorized_keys file
+      stat:
+        path: '/home/{{ svc_acct }}/.ssh/authorized_keys'
+      register: auth_keys
+      when: user_search.stdout == "0"
+
+    # Used to delete the service account and the home directories (uses the remove_user variable in the hosts file)
+    - name: Delete service account
+      user:
+        name: '{{ svc_acct }}'
+        state: absent
+        remove: yes
+      register: account_removed
+      when: remove_user is defined
+
+    # Creates the .ssh directory for the service account
+    - name: Create .SSH Directory
+      file:
+        path: '/home/{{ svc_acct }}/.ssh'
+        state: directory
+        mode: 0700
+        owner: '{{ svc_acct }}'
+        group: '{{ svc_acct }}'
+      register: sshDir_created
+      when: user_created is defined
+
+    # Copies the public key from the authorized_keys file to the service account's .ssh directory
+    - name: Copy SSH Key
+      copy:
+        src: 'files/pubkey'
+        dest: '/home/{{ svc_acct }}/.ssh/authorized_keys'
+        owner: '{{ svc_acct }}'
+        group: '{{ svc_acct }}'
+        mode: 0600
+      when: sshDir_created is defined and auth_keys.stat.exists == False
+
+    # if adding additional keys to the authorized_keys file, this adds it to the end of the file
+    - name: Add Public Key to authorized_keys
+      lineinfile:
+        path: '/home/{{ svc_acct }}/.ssh/authorized_keys'
+        state: present
+        insertafter: EOF
+        line: "{{ lookup('file', 'files/authorized_keys') }}"
+      when: auth_keys.stat.exists == True and account_removed is not defined

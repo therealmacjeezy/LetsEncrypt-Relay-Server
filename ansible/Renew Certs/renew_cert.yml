@@ -1,0 +1,11 @@
+---
+
+- hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+    # Placeholder
+    - name: Coming Soon
+      debug:
+        msg: "Coming Soon"
