@@ -1,0 +1,57 @@
+### Talk Flow:
+**Estimated Time: 44min**
+
+- **Intro (2min)**
+    - About me and what I do
+- **What I'll be covering (2-5min)**
+    - Why the LE Relay was created (5min)
+    - Features / Pros / Cons (5min)
+    - Requirements (5min)
+    - How it works / Files overview (certmenu and wrapper) (10min)
+    - Building the LE Relay (5-10min)
+    - Examples (video recordings) (5min)
+    - References for making your own (github repo overview / ansible playbook overview) (2-5min)
+    - Questions?
+- **Why the LE Relay was created (5min)**
+    - The issue we were facing:
+        - Headache: HSTS requirement for all internal servers 
+            - Solution: LE Relay allows us to be fully HSTS compliant on internal servers
+        - Headache: Create SSL Certs for internal servers without having to open ports up externally and then try to find the money tree around campus to pay for the cert (have yet to find it..)
+            - Solution: LE Relay SSL Certs are free and don't require the internal server to open any ports externally
+        - Headache: Create SSL Certs that work with java and other special applications (internal SSL certs seemed to make java barf randomly and block connections)
+            - Solution: LE Relay SSL Certs so far have worked with every application we have come across 
+- **Features (5min)**
+    - Allows internal servers to have SSL Certs created without exposing them to the public
+    - User / Admin Friendly
+        - Allows the Admin to fully manage all of the SSL Certs they use and even automate it too
+    - Uses SSH Wrapper and the certmenu script to restrict access
+        - Easier to manage and more secure / functional then a chroot jail
+    - Free SSL Certs 
+        - Saves your company more money then Geico would! (ha..dad joke)
+- **LE Relay Server Requirements (5min)**
+    - Linux Server (CentOS is my go distro) with the following items
+        - apache webserver w/ a virtual host configured for 80 and 443
+        - certbot
+        - hostname that is registered (both public and private)
+    - Local Account (on the LE Relay Server) w/ the Public SSH Key and a member of the certbotusers group
+- **How it works / Files overview (certmenu and wrapper) (10min)**
+    - The LE Relay Server relies on the following files and setting
+        - SSH Wrapper
+            - Filters the SSH connections that meet the conditions of the Match Group
+            - Runs the certmenu script and passes the original ssh command along if it sees the incoming request isn't an SCP or SFTP connection
+        - Certmenu Script
+            - Allows Admins to use certbot in their own working directory (eg: /home/adminsvc01/)
+            - Options: Create, Renew, List and Convert to .pfx (and help)
+        - The Match Group conditional block added to the sshd_config
+            - Restricts access based off of the certbotusers group
+            - Runs the SSH Wrapper for users that are memebers of the certbotusers group 
+    - Animation overview for the process of creating an SSL Cert
+- **Building the LE Relay (5-10min)**
+    - Overview of what I did to stand mine up, where the files went, creating the certbot group, creating the SSL cert for the Relay
+- **Examples (5min)**
+    - Screen recordings / text examples of creating a cert, renewing a cert and adding a service account
+- **References for making your own (5min)**
+    - Personal Github Repository
+        - Contains templates of all the required files needed to stand a basic LE Relay Server up along with Ansible Playbooks to help automate several tasks
+- **Questions? (5min)**
+
