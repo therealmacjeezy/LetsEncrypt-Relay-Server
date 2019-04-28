@@ -6,10 +6,11 @@ Match Group certbotusers
 	PasswordAuthentication yes
 	ForceCommand /opt/cert/wrapper.sh $SSH_ORGININAL_COMMAND
         AuthorizedKeysFile /etc/keys/authorized_keys
-
+Match All
 
 # Example of how a single user setup looks
 
 Match User svgs-jamfdevssl
         PasswordAuthentication yes
         ForceCommand /opt/cert/wrapper.sh $SSH_ORIGINAL_COMMAND
+Match All
