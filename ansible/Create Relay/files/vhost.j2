@@ -1,0 +1,8 @@
+Listen 80
+<VirtualHost *:80>
+    ServerName {{ inventory_hostname_short }}
+    ServerAlias {{ inventory_hostname_short }}
+    DocumentRoot /var/www/html/{{ inventory_hostname_short }}/public_html
+    ErrorLog /var/www/html/{{ inventory_hostname_short }}/error.log
+    CustomLog /var/www/html/{{ inventory_hostname_short }}/requests.log combined
+</VirtualHost>

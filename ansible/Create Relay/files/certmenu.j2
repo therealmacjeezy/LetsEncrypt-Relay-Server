@@ -15,35 +15,35 @@ export TERM=xterm
 sshOption=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 
 # Certbot options to sandbox certbot to each service account's home directory
-CERTBOT_OPTS="--webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/"
-CERTBOT_OPTS_CREATE="--webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/"
+CERTBOT_OPTS="--webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/"
+CERTBOT_OPTS_CREATE="--webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --agree-tos -m {{ relay_admin_email }} --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/"
 
 renewCert() {
     if [[ -z "$2" ]]; then
         # Renews the certificates in the users directory
-        certbot renew --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+        certbot renew --webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
     else
         # Renews one certificate
         echo "Attempting certificate renewal for $2"
 
-        certbot renew --cert-name "$2" --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+        certbot renew --cert-name "$2" --webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
     fi
 }
 
 createCert() {
     echo "#############################################"
-    echo "# therealmacjeezy's LetsEncrypt Relay Server"
+    echo "# LetsEncrypt Relay Server"
     echo "# Logged In As: $USER"
     echo "#############################################"
     echo " "
     echo "Enter the FQDN (Domain Name) being used:"
-    echo "Example: penguinmetal.macjeezy.com"
+    echo "Example: penguinmetal.{{ inventory_hostname_short }}.com"
     printf 'FQDN: '
     read certDomain
 
     while [[ -z "$certDomain" ]]; do
         echo "Enter the FQDN (Domain Name) being used:"
-        echo "Example: penguinmetal.macjeezy.com"
+        echo "Example: penguinmetal.{{ inventory_hostname_short }}.com"
         printf 'FQDN: '
         read certDomain
     done
@@ -78,7 +78,7 @@ createCert() {
     case "$addSANS" in
         Y|y)
             echo "Enter SANs seperated by commas"
-            echo "Example: penguinmetal.macjeezy.com,nolacontux.macjeezy.com"
+            echo "Example: penguinmetal.{{ inventory_hostname_short }}.com,tux.{{ inventory_hostname_short }}.com"
             printf 'SANs: '
             read certSANS
             supportSANS="yes"
@@ -98,15 +98,13 @@ createCert() {
 
     if [[ -z "$certDomain" ]]; then
         echo "No FQDN was entered. This is required."
-        echo "Example: penguinmetal.macjeezy.com"
+        echo "Example: penguinmetal.{{ inventory_hostname_short }}.com"
         echo "Exiting.."
         exit 1
     else
-        certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" -q
-        # Use below line for testing
-        #certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" --test-cert
+        certbot certonly --webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --agree-tos -m {{ relay_admin_email }} --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" -q
 
-        getDir=$(ls /home/"$USER"/SSL/live | grep "$firstDomain")
+        getDir=$(ls /home/"$USER"/SSL/live | grep "$certDomain")
 
             if [[ -a /home/"$USER"/SSL/live/"$getDir"/fullchain.pem ]]; then
                 echo "The certificate for $certDomain has been created"
@@ -119,18 +117,18 @@ createCert() {
 }
 
 listAll() {
-    certbot certificates --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+    certbot certificates --webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
 }
 
 scriptUsage() {
 
 cat <<helptext
 
-therealmacjeezy's LetsEncrypt Proxy Server
+LetsEncrypt Proxy Server
 Updated: April 2019
 
 Usage:
-	> ssh svcaccount@le.macjeezy.com '[Option]'
+	> ssh svcaccount@{{ inventory_hostname_short }}.com '[Option]'
 
 Options:
 create - Create a LetsEncrypt Certificate
@@ -142,8 +140,8 @@ create - Create a LetsEncrypt Certificate
 
 	NOTE: If additional SANs are needed, list them seperated by commas and no spaces in between
 	- Examples:
-		> ssh svcaccount@le.macjeezy.com create
-		> ssh svcaccount@le.macjeezy.com 'create penguinmetal.macjeezy.com'
+		> ssh svcaccount@{{ inventory_hostname_short }}.com create
+		> ssh svcaccount@{{ inventory_hostname_short }}.com 'create penguinmetal.{{ inventory_hostname_short }}.com'
 
 renew - Renews a LetsEncrypt Certificate
 	If create is used without any additonal options, it will automatically check each certificate in your home directory and renew them if needed.
@@ -151,18 +149,18 @@ renew - Renews a LetsEncrypt Certificate
     If create is used WITH additional options (see examples below), it will only check the certifcate name that was entered
 
 	- Examples:
-		> ssh svcaccount@le.macjeezy.com renew
-		> ssh svcaccount@le.macjeezy.com 'renew penguinmetal.macjeezy.com'
+		> ssh svcaccount@{{ inventory_hostname_short }}.com renew
+		> ssh svcaccount@{{ inventory_hostname_short }}.com 'renew penguinmetal.{{ inventory_hostname_short }}.com'
 
 pfx - Creates a pfx file from the LetsEncrypt certificates
     If the certificate name is not used with this option, you will get an error stating it is unable to create the pfx file.
 
     - Example:
-        > ssh svcaccount@le.macjeezy.com 'pfx penguinmetal.macjeezy.com'
+        > ssh svcaccount@{{ inventory_hostname_short }}.com 'pfx penguinmetal.{{ inventory_hostname_short }}.com'
 
 list - Returns a list of all the certificates in your home directory and information about each one
 	- Examples:
-		> ssh svcaccount@le.macjeezy.com list
+		> ssh svcaccount@{{ inventory_hostname_short }}.com list
 
 help|? - Displays this usage menu
 
@@ -193,7 +191,7 @@ case "$sshOption" in
 	        winExport_renew
         elif [[ -z "$2" ]]; then
             echo "Missing Required Certificate Name"
-            echo "Example: ssh svcaccount@le.macjeezy.com 'pfx penguinmetal.macjeezy.com'"
+            echo "Example: ssh svcaccount@{{ inventory_hostname_short }}.com 'pfx penguinmetal.{{ inventory_hostname_short }}.com'"
             scriptUsage
         fi
         ;;
@@ -204,10 +202,9 @@ case "$sshOption" in
             certDomain="$2"
 	    firstDomain=$(echo "$certDomain" | sed 's/[,].*//g')
             echo "$firstDomain"
-	    certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain"
-            #certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" --test-cert
+	    certbot certonly --webroot -w /var/www/html/{{ inventory_hostname_short }}/public_html/ --agree-tos -m {{ relay_admin_email }} --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain"
 
-            getDir=$(ls /home/"$USER"/SSL/live/ | grep "$firstDomain")
+            getDir=$(ls /home/"$USER"/SSL/live/ | grep "$certDomain")
 
 	    #echo "$getDir"
 

@@ -13,9 +13,10 @@
 # Ex 1: Ungrouped hosts, specify before any group headers.
 all:
   vars:
-    # More to come here
+    relay_group: certbotusers
+    relay_admin_email: "josh@macjeezy.com"
 
 le:
   hosts:
-    le.macjeezy:
-      ansible_host: le.macjeezy.com
+    le.therealmacjeezy.xyz:
+      ansible_host: le.therealmacjeezy.xyz

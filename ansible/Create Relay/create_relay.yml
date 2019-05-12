@@ -5,7 +5,84 @@
   become_method: sudo
 
   tasks:
-    # Placeholder
-    - name: Coming Soon
-      debug:
-        msg: "Coming Soon"
+    # Update all installed packages
+    - name: Updating installed packages (May take a while..)
+      yum:
+        name: "*"
+        state: latest
+    
+    - name: Install EPEL repo
+      yum:
+        name: epel-release
+        state: installed
+
+    - name: Install apache
+      yum:
+        name: httpd
+        state: installed
+      notify: restart_httpd
+
+    - name: Install Certbot Client for Apache
+      yum:
+        name: certbot python2-certbot-apache
+        state: installed
+      
+    # Create directory to store the scripts and authorized keys in
+    - name: Create /opt/cert directory
+      file:
+        path: /opt/cert
+        state: directory
+        mode: 0777
+
+    # Copy scripts into the /opt/cert directory
+    - name: Create certmenu script in /opt/cert
+      copy:
+        content: /files/certmenu.j2
+        dest: /opt/cert/certmenu.sh
+        owner: root
+        group: root
+        mode: '0755'
+    
+    - name: Create SSH Wrapper in /opt/certs
+      copy:
+        content: /files/wrapper.sh
+        dest: /opt/cert/wrapper.sh
+        owner: root
+        group: root
+        mode: '0755'
+
+    # Create Vhost
+    - name: Create VHost for port 80
+      copy:
+        content: /files/vhost.j2
+        dest: /etc/httpd/{{ inventory_hostname_short }}.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    # Create Match Group block in sshd_config
+    - name: insert/update "Match User" configuration block in /etc/ssh/sshd_config
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        block: |
+          Match Group "{{ relay_group }}"
+            PasswordAuthentication no
+            ForceCommand /opt/cert/wrapper.sh $SSH_ORGININAL_COMMAND
+            AuthorizedKeysFile /opt/cert/authorized_keys
+      notify: restart_ssh
+    
+  
+    handlers:
+      - name: restart_httpd
+        service:
+          name: httpd
+          state: restarted
+      
+      - name: restart_ssh
+        service:
+          name: sshd
+          state: restarted
+      
+    
+    
+      
