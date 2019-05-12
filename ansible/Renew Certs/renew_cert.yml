@@ -5,7 +5,7 @@
   become_method: sudo
 
   tasks:
-    # Placeholder
-    - name: Coming Soon
+    # Renew All Certs
+    - name: Renewing SSL Certificates
       debug:
         msg: "Coming Soon"

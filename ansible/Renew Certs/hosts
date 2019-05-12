@@ -14,13 +14,13 @@
 all:
   vars:
     # Enter the service account being used to connect here
-    svc_acct: penguinmetal
+    svc_acct: nibbler
     # Change to true is you need to convert the LE Certs to .pfx for IIS
     using_iis: false
     # Enter the directory you want to save the renewed certs to locally
-    save_dir: /path/to/local/dir
+    save_dir: /tmp
 
 le:
   hosts:
-    le.macjeezy:
-      ansible_host: le.macjeezy.com
+    le.therealmacjeezy.xyz:
+      ansible_host: le.therealmacjeezy.xyz

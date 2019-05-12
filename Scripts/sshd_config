@@ -1,0 +1,4 @@
+Match Group certbotusers
+	PasswordAuthentication no
+	ForceCommand /opt/cert/wrapper.sh $SSH_ORGININAL_COMMAND
+        AuthorizedKeysFile /opt/cert/authorized_keys

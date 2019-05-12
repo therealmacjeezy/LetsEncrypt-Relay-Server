@@ -15,13 +15,13 @@ export TERM=xterm
 sshOption=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 
 # Certbot options to sandbox certbot to each service account's home directory
-CERTBOT_OPTS="--webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/"
-CERTBOT_OPTS_CREATE="--webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/"
+CERTBOT_OPTS="--webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/"
+CERTBOT_OPTS_CREATE="--webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/"
 
 renewCert() {
     if [[ -z "$2" ]]; then
         # Renews the certificates in the users directory
-        certbot renew --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+        certbot renew --webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
     else
         # Renews one certificate
         echo "Attempting certificate renewal for $2"
@@ -102,9 +102,7 @@ createCert() {
         echo "Exiting.."
         exit 1
     else
-        certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" -q
-        # Use below line for testing
-        #certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" --test-cert
+        certbot certonly --webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" -q
 
         getDir=$(ls /home/"$USER"/SSL/live | grep "$firstDomain")
 
@@ -119,7 +117,7 @@ createCert() {
 }
 
 listAll() {
-    certbot certificates --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+    certbot certificates --webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
 }
 
 scriptUsage() {
@@ -204,12 +202,9 @@ case "$sshOption" in
             certDomain="$2"
 	    firstDomain=$(echo "$certDomain" | sed 's/[,].*//g')
             echo "$firstDomain"
-	    certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain"
-            #certbot certonly --webroot -w /var/www/html/gs-3285-le/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain" --test-cert
+	    certbot certonly --webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --agree-tos -m josh@macjeezy.com --no-eff-email --config-dir /home/"$USER"/SSL/ --work-dir /home/"$USER"/.cert_work/ --logs-dir /home/"$USER"/.cert_logs/ -d "$certDomain"
 
-            getDir=$(ls /home/"$USER"/SSL/live/ | grep "$firstDomain")
-
-	    #echo "$getDir"
+            getDir=$(ls /home/"$USER"/SSL/live/ | grep "$certDomain")
 
             if [[ -a /home/"$USER"/SSL/live/"$getDir"/fullchain.pem ]]; then
                 echo "The certificate for $certDomain has been created"
