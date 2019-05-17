@@ -25,4 +25,4 @@ all:
 le:
   hosts:
     le.therealmacjeezy.xyz:
-      ansible_host: e.therealmacjeezy.xyz
+      ansible_host: le.therealmacjeezy.xyz
