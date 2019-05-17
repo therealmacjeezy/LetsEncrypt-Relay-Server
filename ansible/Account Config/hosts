@@ -19,8 +19,7 @@ all:
     certbot_group: gimmecerts
     # Randomizes the password for the service account
     rand_pass: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
-    # Set to true if deleting the user account
-    #remove_user: false
+  
 
 le:
   hosts:
