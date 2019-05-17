@@ -26,7 +26,7 @@ renewCert() {
         # Renews one certificate
         echo "Attempting certificate renewal for $2"
 
-        certbot renew --cert-name "$2" --webroot -w /var/www/html/gs-3285-le/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
+        certbot renew --cert-name "$2" --webroot -w /var/www/html/le.therealmacjeezy.xyz/public_html/ --config-dir /home/$USER/SSL/ --work-dir /home/$USER/.cert_work/ --logs-dir /home/$USER/.cert_logs/
     fi
 }
 
@@ -171,10 +171,10 @@ helptext
 
 
 winExport_renew() {
-    openssl pkcs12 -export -out /home/"$USER"/SSL/live/"$leCert"/iisCert.pfx -inkey /home/"$USER"/SSL/live/"$leCert"/privkey.pem -in /home/"$USER"/SSL/live/"$leCert"/cert.pem -certfile /home/"$USER"/SSL/live/"$leCert"/fullchain.pem
+    openssl pkcs12 -export -out /home/"$USER"/SSL/live/"$leCert"/"$leCert".pfx -inkey /home/"$USER"/SSL/live/"$leCert"/privkey.pem -in /home/"$USER"/SSL/live/"$leCert"/cert.pem -certfile /home/"$USER"/SSL/live/"$leCert"/fullchain.pem
 
-    if [[ -a "/home/$USER/SSL/live/"$leCert"/iisCert.pfx" ]]; then
-        echo "PFX Location: /home/$USER/SSL/live/"$leCert"/iisCert.pfx"
+    if [[ -a "/home/$USER/SSL/live/"$leCert"/"$leCert".pfx" ]]; then
+        echo "PFX Location: /home/$USER/SSL/live/"$leCert"/"$leCert".pfx"
     else
         echo "Unable to create PFX Certificate"
     fi
